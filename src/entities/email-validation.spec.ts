@@ -45,4 +45,9 @@ describe('Email validation', () => {
     const email = 'any@' + 'd'.repeat(64) + '.com'
     expect(Email.validate(email)).toBeFalsy()
   })
+
+  it('should not accept emails with invalid chars', () => {
+    const email = 'any @mail.com'
+    expect(Email.validate(email)).toBeFalsy()
+  })
 })
