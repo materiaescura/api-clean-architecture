@@ -1,4 +1,4 @@
-import type { UserData } from './user-data'
+import type { UserData } from '../entities/user-data'
 
 describe('Register user on mailing list use case', () => {
   it('should add user user with complete data to mailing list', async () => {
