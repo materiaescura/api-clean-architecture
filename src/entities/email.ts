@@ -2,10 +2,10 @@ import { Either, left, right } from '../shared/either'
 import { InvalidEmailError } from './errors/invalid-email-error'
 
 export class Email {
-  private readonly email: string
+  private readonly value: string
 
-  private constructor(email: string) {
-    this.email = email
+  private constructor(value: string) {
+    this.value = value
   }
 
   static create(email: string): Either<InvalidEmailError, Email> {
@@ -14,17 +14,17 @@ export class Email {
     return right(new Email(email))
   }
 
-  static validate(email: string | null): boolean {
-    if (!email) return false
+  static validate(value: string | null): boolean {
+    if (!value) return false
 
-    if (email.length > 320) return false
+    if (value.length > 320) return false
 
     const emailRegex =
       /^[-!#$%&'*+/0-9=?A-Z^_a-z`{|}~](\.?[-!#$%&'*+/0-9=?A-Z^_a-z`{|}~])*@[a-zA-Z0-9](-*\.?[a-zA-Z0-9])*\.[a-zA-Z](-?[a-zA-Z0-9])+$/
 
-    if (!emailRegex.test(email)) return false
+    if (!emailRegex.test(value)) return false
 
-    const [local, domain] = email.split('@')
+    const [local, domain] = value.split('@')
 
     if (local.length > 64 || local.length === 0) return false
 
