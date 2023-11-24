@@ -8,10 +8,10 @@ import { UserData } from './user-data'
 type UserError = InvalidNameError | InvalidEmailError
 
 export class User {
-  private readonly name: string
-  private readonly email: string
+  public readonly name: Name
+  public readonly email: Email
 
-  constructor({ name, email }: UserData) {
+  constructor(name: Name, email: Email) {
     this.name = name
     this.email = email
   }
@@ -22,6 +22,9 @@ export class User {
     const emailOrError = Email.create(userData.email)
     if (emailOrError.isLeft()) return left(new InvalidEmailError())
 
-    return right(new User(userData))
+    const name = nameOrError.value as Name
+    const email = emailOrError.value as Email
+
+    return right(new User(name, email))
   }
 }
