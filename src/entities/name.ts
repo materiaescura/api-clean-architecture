@@ -19,7 +19,7 @@ export class Name {
 
   public static create(value: string): Either<InvalidNameError, Name> {
     if (!Name.validate(value)) {
-      return left(new InvalidEmailError())
+      return left(new InvalidNameError(value))
     }
 
     return right(new Name(value))

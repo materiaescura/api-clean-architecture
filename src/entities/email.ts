@@ -9,7 +9,7 @@ export class Email {
   }
 
   static create(email: string): Either<InvalidEmailError, Email> {
-    if (!Email.validate(email)) return left(new InvalidEmailError())
+    if (!Email.validate(email)) return left(new InvalidEmailError(email))
 
     return right(new Email(email))
   }
