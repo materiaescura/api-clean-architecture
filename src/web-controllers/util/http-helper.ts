@@ -6,3 +6,10 @@ export const created = (data: unknown): HttpResponse => {
     body: data,
   }
 }
+
+export const badRequest = (data: unknown): HttpResponse => {
+  return {
+    statusCode: 400,
+    body: data,
+  }
+}
