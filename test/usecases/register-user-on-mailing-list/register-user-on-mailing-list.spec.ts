@@ -1,6 +1,6 @@
 import type { UserData } from '@/entities'
-import { UserRepository } from '@/usecases/ports'
-import { RegisterUserOnMailingList } from '@/usecases'
+import { UserRepository } from '@/usecases/register-user-on-mailing-list/ports'
+import { RegisterUserOnMailingList } from '@/usecases/register-user-on-mailing-list'
 import { InMemoryUserRepository } from '@test/usecases/register-user-on-mailing-list/repository'
 
 describe('Register user on mailing list use case', () => {
@@ -12,7 +12,7 @@ describe('Register user on mailing list use case', () => {
     )
     const name = 'any_name'
     const email = 'any@email.com'
-    const response = await usecase.registerUserOnMailingList({ email, name })
+    const response = await usecase.perform({ email, name })
     const user = await repo.findUserByEmail(email)
     expect(user?.name).toBe(name)
     expect(response.value.name).toBe(name)
@@ -27,7 +27,7 @@ describe('Register user on mailing list use case', () => {
     const name = 'any_name'
     const invalidEmail = 'any_mail'
     const response = (
-      await usecase.registerUserOnMailingList({
+      await usecase.perform({
         email: invalidEmail,
         name,
       })
@@ -46,7 +46,7 @@ describe('Register user on mailing list use case', () => {
     const invalidName = ''
     const email = 'any@email.com'
     const response = (
-      await usecase.registerUserOnMailingList({
+      await usecase.perform({
         email,
         name: invalidName,
       })

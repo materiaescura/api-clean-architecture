@@ -1,4 +1,4 @@
-import { UserRepository } from '@/usecases/ports/user-data'
+import { UserRepository } from '@/usecases/register-user-on-mailing-list/ports/user-data'
 import { UserData } from '@/entities/user-data'
 
 export class InMemoryUserRepository implements UserRepository {
