@@ -12,7 +12,7 @@ const config = {
     '!**/test/**',
     '!**/config/**'
   ],
-  testEnvironment: 'node',
+  // testEnvironment: 'node',
   transform: {
     '.+\\.ts$': 'ts-jest'
   },
