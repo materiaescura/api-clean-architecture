@@ -7,8 +7,8 @@
         "strictNullChecks": true,
         "allowJs": true,
         "paths": {
-            "@/*": ["src/*"],
-            "@test/*": ["test/*"]
+            "@/*": ["./src/*"],
+            "@test/*": ["./test/*"]
         }
     }
 }
