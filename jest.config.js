@@ -5,6 +5,7 @@
 
 /** @type {import('jest').Config} */
 const config = {
+  preset: '@shelf/jest-mongodb',
   roots: ['<rootDir>/test'],
   coverageDirectory: 'coverage',
   collectCoverageFrom: [
