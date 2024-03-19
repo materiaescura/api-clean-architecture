@@ -1,5 +1,6 @@
 import { UserData } from '@/entities'
-import { Either, left, right } from '@/shared'
+import { InvalidEmailError, InvalidNameError } from '@/entities/errors'
+import { Either, Left, Right, left, right } from '@/shared'
 import { MailServiceError } from '@/usecases/errors/mail-service-error'
 import { RegisterAndSendEmail } from '@/usecases/register-and-send-email/register-and-send-email'
 import { RegisterUserOnMailingList } from '@/usecases/register-user-on-mailing-list'
@@ -88,5 +89,39 @@ describe('Register and send email', () => {
     expect(user?.name).toBe(name)
     expect(response.value.name).toEqual({ value: name })
     expect(mailServiceMock.timesSendWasCalled).toEqual(1)
+  })
+
+  it('should not add user with invalid name to mailing list', async () => {
+    const users: UserData[] = []
+    const repo = new InMemoryUserRepository(users)
+    const registerUseCase: RegisterUserOnMailingList =
+      new RegisterUserOnMailingList(repo)
+    const mailService = new MailServiceMock()
+    const sendEmail: SendEmail = new SendEmail(
+      emailConfig,
+      dataEmail,
+      mailService
+    )
+    const invalidName = 'n'
+    const email = 'any@email.com'
+    const response = await sendEmail.perform({ name: invalidName, email })
+    expect(response.value).toBeInstanceOf(InvalidNameError)
+  })
+
+  it('should not add user with invalid email to mailing list', async () => {
+    const users: UserData[] = []
+    const repo = new InMemoryUserRepository(users)
+    const registerUseCase: RegisterUserOnMailingList =
+      new RegisterUserOnMailingList(repo)
+    const mailService = new MailServiceMock()
+    const sendEmail: SendEmail = new SendEmail(
+      emailConfig,
+      dataEmail,
+      mailService
+    )
+    const name = 'any_name'
+    const invalidEmail = 'anyemail.com'
+    const response = await sendEmail.perform({ name, email: invalidEmail })
+    expect(response.value).toBeInstanceOf(InvalidEmailError)
   })
 })
