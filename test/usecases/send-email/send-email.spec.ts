@@ -1,4 +1,4 @@
-import { Email } from '@/entities'
+import { Email, User } from '@/entities'
 import { Either, Left, Right, left, right } from '@/shared'
 import { MailServiceError } from '@/usecases/errors/mail-service-error'
 import {
@@ -8,6 +8,7 @@ import {
   EmailService,
 } from '@/usecases/send-email/ports'
 import { SendEmail } from '@/usecases/send-email/send-email'
+import exp from 'constants'
 
 const attachmentPath = '../resources/attachment.txt'
 const fromName = 'from_name'
@@ -61,28 +62,19 @@ class MailServiceStubError implements EmailService {
 describe('Send email to user', () => {
   it('should send email with valid name and address', async () => {
     const mailServiceStub = new MailServiceStub()
+    const user = User.create({ name: toName, email: toEmail }).value as User
     const useCase = new SendEmail(emailConfig, email, mailServiceStub)
-    const response = await useCase.perform({ name: toName, email: toEmail })
+    const response = await await useCase.perform(user)
+    const emailBodyTo = response.value as EmailBodyTo
     expect(response).toBeInstanceOf(Right)
-  })
-
-  it('should not send email with invalid email address', async () => {
-    const mailServiceStub = new MailServiceStub()
-    const useCase = new SendEmail(emailConfig, email, mailServiceStub)
-    const response = await useCase.perform({
-      name: toName,
-      email: 'invalid_email',
-    })
-    expect(response).toBeInstanceOf(Left)
+    expect(emailBodyTo.to).toEqual(toName + '<' + toEmail + '>')
   })
 
   it('should return an error when email service fails', async () => {
     const mailServiceStubError = new MailServiceStubError()
+    const user = User.create({ name: toName, email: toEmail }).value as User
     const useCase = new SendEmail(emailConfig, email, mailServiceStubError)
-    const response = await useCase.perform({
-      name: toName,
-      email: 'any@email.com',
-    })
+    const response = await useCase.perform(user)
     expect(response.value).toBeInstanceOf(MailServiceError)
   })
 })
