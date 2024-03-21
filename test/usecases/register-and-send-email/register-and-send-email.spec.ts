@@ -1,4 +1,4 @@
-import { UserData } from '@/entities'
+import { User, UserData } from '@/entities'
 import { InvalidEmailError, InvalidNameError } from '@/entities/errors'
 import { Either, Left, Right, left, right } from '@/shared'
 import { MailServiceError } from '@/usecases/errors/mail-service-error'
@@ -102,10 +102,17 @@ describe('Register and send email', () => {
       dataEmail,
       mailService
     )
-    const invalidName = 'n'
-    const email = 'any@email.com'
-    const response = await sendEmail.perform({ name: invalidName, email })
-    expect(response.value).toBeInstanceOf(InvalidNameError)
+    const name = 'any_name'
+    const invalidEmail = 'anyemail.com'
+    const registerAndSendEmailUseCase = new RegisterAndSendEmail(
+      registerUseCase,
+      sendEmail
+    )
+    const response = (
+      await registerAndSendEmailUseCase.perform({ name, email: invalidEmail })
+    ).value
+
+    expect(response).toBeInstanceOf(InvalidEmailError)
   })
 
   it('should not add user with invalid email to mailing list', async () => {
@@ -119,9 +126,16 @@ describe('Register and send email', () => {
       dataEmail,
       mailService
     )
-    const name = 'any_name'
-    const invalidEmail = 'anyemail.com'
-    const response = await sendEmail.perform({ name, email: invalidEmail })
-    expect(response.value).toBeInstanceOf(InvalidEmailError)
+    const invalidName = 'n'
+    const email = 'any@email.com'
+    const registerAndSendEmailUseCase = new RegisterAndSendEmail(
+      registerUseCase,
+      sendEmail
+    )
+    const response = (
+      await registerAndSendEmailUseCase.perform({ name: invalidName, email })
+    ).value
+
+    expect(response).toBeInstanceOf(InvalidNameError)
   })
 })
