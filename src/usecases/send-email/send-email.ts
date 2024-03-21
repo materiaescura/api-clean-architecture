@@ -2,12 +2,14 @@ import { Either, left, right } from '@/shared'
 import { UseCase } from '../ports'
 import {
   EmailBody,
+  EmailBodyTo,
   EmailConfig,
   EmailService,
   HTML,
 } from './ports/email-service'
 import { User, UserData } from '@/entities'
 import { InvalidEmailError, InvalidNameError } from '@/entities/errors'
+import { MailServiceError } from '../errors/mail-service-error'
 
 export class SendEmail implements UseCase {
   private readonly emailConfig: EmailConfig
@@ -23,16 +25,14 @@ export class SendEmail implements UseCase {
     this.emailService = emailService
   }
 
-  async perform(userData: UserData): Promise<any> {
-    const userOrError: Either<InvalidNameError | InvalidEmailError, User> =
-      User.create(userData)
-
-    if (userOrError.isLeft()) {
-      return left(userOrError.value)
+  async perform(user: User): Promise<Either<MailServiceError, EmailBodyTo>> {
+    const userData: UserData = {
+      name: user.name.value,
+      email: user.email.value,
     }
 
     const html = this.renderHtml(userData)
-    const to = `${userData.name} <${userData.email}>`
+    const to = `${userData.name}<${userData.email}>`
     const emailBodyTo = { ...this.emailBody, ...html, to }
     return await this.emailService.send(this.emailConfig, emailBodyTo)
   }
