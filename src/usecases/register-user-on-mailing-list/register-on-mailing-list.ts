@@ -11,19 +11,16 @@ export class RegisterUserOnMailingList implements UseCase {
     this.userRepo = userRepo
   }
 
-  public async perform(
-    request: UserData
-  ): Promise<Either<InvalidNameError | InvalidEmailError, UserData>> {
-    const userOrError: Either<InvalidNameError | InvalidEmailError, User> =
-      User.create(request)
-    if (userOrError.isLeft()) {
-      return left(userOrError.value)
+  public async perform(user: User): Promise<UserData> {
+    const userData: UserData = {
+      name: user.name.value,
+      email: user.email.value,
     }
 
-    if (!(await this.userRepo.exists(request))) {
-      await this.userRepo.add(request)
+    if (!(await this.userRepo.exists(userData))) {
+      await this.userRepo.add(userData)
     }
 
-    return right(request)
+    return userData
   }
 }
