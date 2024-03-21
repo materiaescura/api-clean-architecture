@@ -1,4 +1,4 @@
-import type { UserData } from '@/entities'
+import { User, type UserData } from '@/entities'
 import { UserRepository } from '@/usecases/register-user-on-mailing-list/ports'
 import { RegisterUserOnMailingList } from '@/usecases/register-user-on-mailing-list'
 import { InMemoryUserRepository } from '@/usecases/register-user-on-mailing-list/repository'
@@ -12,47 +12,10 @@ describe('Register user on mailing list use case', () => {
     )
     const name = 'any_name'
     const email = 'any@email.com'
-    const response = await usecase.perform({ email, name })
-    const user = await repo.findUserByEmail(email)
-    expect(user?.name).toBe(name)
-    expect(response.value.name).toBe(name)
-  })
-
-  it('should not add user with invalid email to mailing list', async () => {
-    const users: UserData[] = []
-    const repo: UserRepository = new InMemoryUserRepository(users)
-    const usecase: RegisterUserOnMailingList = new RegisterUserOnMailingList(
-      repo
-    )
-    const name = 'any_name'
-    const invalidEmail = 'any_mail'
-    const response = (
-      await usecase.perform({
-        email: invalidEmail,
-        name,
-      })
-    ).value as Error
-    const user = await repo.findUserByEmail(invalidEmail)
-    expect(user).toBeNull()
-    expect(response.name).toEqual('InvalidEmailError')
-  })
-
-  it('should not add user with invalid name to mailing list', async () => {
-    const users: UserData[] = []
-    const repo: UserRepository = new InMemoryUserRepository(users)
-    const usecase: RegisterUserOnMailingList = new RegisterUserOnMailingList(
-      repo
-    )
-    const invalidName = ''
-    const email = 'any@email.com'
-    const response = (
-      await usecase.perform({
-        email,
-        name: invalidName,
-      })
-    ).value as Error
-    const user = await repo.findUserByEmail(email)
-    expect(user).toBeNull()
-    expect(response.name).toEqual('InvalidNameError')
+    const user = User.create({ name, email })
+    const response = await usecase.perform(user.value as User)
+    const repoUser = await repo.findUserByEmail(email)
+    expect(repoUser?.name).toBe(name)
+    expect(response.name).toBe(name)
   })
 })
