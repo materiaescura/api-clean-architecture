@@ -1,18 +1,82 @@
-import { UserData } from '@/entities'
+import { User, UserData } from '@/entities'
 import { InvalidEmailError, InvalidNameError } from '@/entities/errors'
 import { UseCase } from '@/usecases/ports'
 import { RegisterUserOnMailingList } from '@/usecases/register-user-on-mailing-list'
 import { UserRepository } from '@/usecases/register-user-on-mailing-list/ports'
 import { MissingParamError } from '@/web-controllers/errors'
 import { HttpRequest, HttpResponse } from '@/web-controllers/ports/'
-import { RegisterUserController } from '@/web-controllers/register-user-controller'
+import { RegisterAndSendEmailController } from '@/web-controllers/register-and-send-email-controller'
 import { InMemoryUserRepository } from '@/usecases/register-user-on-mailing-list/repository'
+import { SendEmail } from '@/usecases/send-email/send-email'
+import {
+  EmailBody,
+  EmailBodyTo,
+  EmailConfig,
+  EmailService,
+} from '@/usecases/send-email/ports'
+import { Either, right } from '@/shared'
+import { MailServiceError } from '@/usecases/errors/mail-service-error'
+import { RegisterAndSendEmail } from '@/usecases/register-and-send-email/register-and-send-email'
+
+const attachmentPath = '../resources/attachment.txt'
+const fromName = 'from_name'
+const fromEmail = 'from@mail.com'
+const toName = 'to_name'
+const toEmail = 'to@mail.com'
+const subject = 'Email test'
+const emailBody = 'Hello World'
+const emailBodyHtml = '<b>Hello World</b>'
+const attachement = [
+  {
+    filename: attachmentPath,
+    'content-type': 'text/plan',
+  },
+]
+
+const dataEmail: EmailBody = {
+  from: fromName + ' ' + fromEmail,
+  to: toName + '<' + toEmail + '>',
+  subject,
+  text: emailBody,
+  html: emailBodyHtml,
+  attachments: attachement,
+}
+
+const emailConfig: EmailConfig = {
+  host: 'test',
+  port: 867,
+  username: 'test',
+  password: 'test',
+}
+
+class MailServiceStub implements EmailService {
+  async send(
+    emailConfig: EmailConfig,
+    emailBody: EmailBodyTo
+  ): Promise<Either<MailServiceError, EmailBodyTo>> {
+    return right(emailBody)
+  }
+}
 
 describe('Register user web controller', () => {
   const users: UserData[] = []
   const repo: UserRepository = new InMemoryUserRepository(users)
-  const usecase: UseCase = new RegisterUserOnMailingList(repo)
-  const controller: RegisterUserController = new RegisterUserController(usecase)
+  const registerUserOnMailingList: RegisterUserOnMailingList =
+    new RegisterUserOnMailingList(repo)
+
+  const mailServiceStub = new MailServiceStub()
+  const sendEmail: SendEmail = new SendEmail(
+    emailConfig,
+    dataEmail,
+    mailServiceStub
+  )
+
+  const registerAndSendEmail = new RegisterAndSendEmail(
+    registerUserOnMailingList,
+    sendEmail
+  )
+  const controller: RegisterAndSendEmailController =
+    new RegisterAndSendEmailController(registerAndSendEmail)
 
   class ErrorThrowingUseCaseStub implements UseCase {
     perform(request: any): Promise<any> {
@@ -33,8 +97,10 @@ describe('Register user web controller', () => {
 
     const response: HttpResponse = await controller.handle(request)
 
+    const user = response.body as User
     expect(response.statusCode).toEqual(201)
-    expect(response.body).toEqual(request.body)
+    expect(user.name.value).toEqual(request.body.name)
+    expect(user.email.value).toEqual(request.body.email)
   })
 
   it('Should return status code 400 when request cotains invalid name', async () => {
@@ -114,7 +180,9 @@ describe('Register user web controller', () => {
       },
     }
 
-    const controller = new RegisterUserController(errorThrowingUseCaseStub)
+    const controller = new RegisterAndSendEmailController(
+      errorThrowingUseCaseStub
+    )
     const response: HttpResponse = await controller.handle(request)
 
     expect(response.statusCode).toEqual(500)
