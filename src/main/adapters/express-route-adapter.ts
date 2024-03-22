@@ -1,5 +1,5 @@
 import { HttpRequest } from '@/web-controllers/ports'
-import { RegisterUserController } from '@/web-controllers/register-user-controller'
+import { RegisterUserController } from '@/web-controllers/register-and-send-email-controller'
 import { Request, Response } from 'express'
 
 export const adaptRoute = (controller: RegisterUserController) => {

@@ -5,7 +5,7 @@ import { badRequest, created, missingParams, serverError } from './util'
 import { MissingParamError } from './errors'
 import { UseCase } from '@/usecases/ports'
 
-export class RegisterUserController {
+export class RegisterAndSendEmailController {
   constructor(private useCase: UseCase) {
     this.useCase = useCase
   }
