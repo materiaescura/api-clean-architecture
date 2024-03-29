@@ -67,7 +67,7 @@ describe('Send email to user', () => {
     const response = await await useCase.perform(user)
     const emailBodyTo = response.value as EmailBodyTo
     expect(response).toBeInstanceOf(Right)
-    expect(emailBodyTo.to).toEqual(toName + '<' + toEmail + '>')
+    expect(emailBodyTo.to).toEqual(toEmail)
   })
 
   it('should return an error when email service fails', async () => {
