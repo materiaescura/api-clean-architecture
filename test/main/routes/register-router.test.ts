@@ -19,8 +19,8 @@ describe('Register router', () => {
     await request(app)
       .post('/api/register')
       .send({
-        name: 'Any Name',
-        email: 'any@mail.com',
+        name: 'diego',
+        email: 'diego.bug@gmail.com',
       })
       .expect(201)
   })
