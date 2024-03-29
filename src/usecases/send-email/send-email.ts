@@ -32,7 +32,7 @@ export class SendEmail implements UseCase {
     }
 
     const html = this.renderHtml(userData)
-    const to = `${userData.name}<${userData.email}>`
+    const to = userData.email
     const emailBodyTo = { ...this.emailBody, ...html, to }
     return await this.emailService.send(this.emailConfig, emailBodyTo)
   }
